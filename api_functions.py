@@ -6,6 +6,7 @@ from task_similarity import SemanticSim
 from typing import List, Dict
 import requests
 import base64
+from address import Address
 
 HOST = "dpg-cpa811tds78s73ct2q20-a.frankfurt-postgres.render.com"
 USERNAME = "uza"
@@ -45,7 +46,7 @@ def get_user_tasks_suggestions(user_id):
     suggestions_list = [{"task_details": sug["help_sentence"]} for sug in suggestions]
 
     return {"exists": True, "user id": user_id, "requests":
-        requests, "suggestions": suggestions_list, "location": user["neighborhood_id"],
+        requests, "suggestions": suggestions_list,
             "photo": "base64string"}
 
 
@@ -57,7 +58,11 @@ def login(username):
     else:
         user = user[0]
         user_id = user["id"]
-        return get_user_tasks_suggestions(user_id)
+        res =  get_user_tasks_suggestions(user_id)
+        res['exists'] = True
+        res['location'] = user["neighborhood_id"]
+
+        return res
 
 
 def register(username, email, phone_number, location, suggestions, photo=None):
