@@ -82,10 +82,12 @@ def register(username, phone_number, street, number, city, suggestions, photo=No
     new_user_id = new_user_id[0]['id']
 
     # insert photo
+    """
     if not photo:
         photo = generate_face_pic()
     utils.execute_query(queries.INSERT_PHOTO, HOST, DB_NAME, USERNAME, PASSWORD,
                         params=(new_user_id, photo))
+    """
 
 
     # insert suggestion vectors
