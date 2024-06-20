@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS
-import requests as req
+import api_functions as req
 
 app = Flask(__name__)
 CORS(app)

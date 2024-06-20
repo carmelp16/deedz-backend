@@ -17,6 +17,31 @@ TIME_DICT = {
 }
 
 
+def get_user_tasks_suggestions(user_id):
+    tasks = utils.execute_query(queries.TASKS_BY_HELPEE, HOST, DB_NAME, USERNAME, PASSWORD, params=(user_id,))
+    suggestions = utils.execute_query(queries.SUGGESTIONS_BY_HELPER, HOST, DB_NAME, USERNAME, PASSWORD,
+                                      params=(user_id,))
+
+    requests = []
+    for task in tasks:
+        request = {"task_details": task["task_details"]}
+
+        given_time = task["task_creation"]
+        time_difference = datetime.now() - given_time
+        difference_in_hours = time_difference.total_seconds() / 3600
+        request["time_remaining"] = TIME_DICT[task["task_time"]] - difference_in_hours
+
+        request["status"] = task["status"]
+        request["executing_username"] = task["helper_username"]
+        requests.append(request)
+
+    suggestions_list = [{"task_details": sug["help_sentence"]} for sug in suggestions]
+
+    return {"exists": True, "user id": user_id, "requests":
+        requests, "suggestions": suggestions_list, "location": user["neighborhood_id"],
+            "photo": "base64string"}
+
+
 def login(username):
     # send username to db
     user = utils.execute_query(queries.USER_QUERY_BY_NAME, HOST, DB_NAME, USERNAME, PASSWORD, params=(username, ))
@@ -25,28 +50,7 @@ def login(username):
     else:
         user = user[0]
         user_id = user["id"]
-        tasks = utils.execute_query(queries.TASKS_BY_HELPEE, HOST, DB_NAME, USERNAME, PASSWORD, params=(user_id, ))
-        suggestions = utils.execute_query(queries.SUGGESTIONS_BY_HELPER, HOST, DB_NAME, USERNAME, PASSWORD,
-                                          params=(user_id, ))
-
-        requests = []
-        for task in tasks:
-            request = {"task_details": task["task_details"]}
-
-            given_time = task["task_creation"]
-            time_difference = datetime.now() - given_time
-            difference_in_hours = time_difference.total_seconds() / 3600
-            request["time_remaining"] = TIME_DICT[task["task_time"]] - difference_in_hours
-
-            request["status"] = task["status"]
-            request["executing_username"] = task["helper_username"]
-            requests.append(request)
-
-        suggestions_list = [{"task_details": sug["help_sentence"]} for sug in suggestions]
-
-        return {"exists": True, "user id": user_id, "requests":
-                requests, "suggestions": suggestions_list, "location": user["neighborhood_id"],
-                "photo": "base64string"}
+        return get_user_tasks_suggestions(user_id)
 
 
 def register(username, email, phone_number, location, suggestions, photo=None):
@@ -119,11 +123,10 @@ def get_matches(user_id=None, location=None, suggestions=None, task_time=None, s
 
 def get_user_by_id(user_id):
     # fetch user from db. also fetch tasks and suggestions for this user.
-    return {"exists": True, "requests":
-        [{"task_details": "I need someone to pet my dog", "time_remaining": 5, "status": 2,
-          "executing_username": "amit"},
-         {"task_details": "Connect to my db bls", "time_remaining": 5, "status": 1}],
-            "suggestions": [{"task_details": "I want to pet someone's dog"}], "location": 1, "photo": "base64string"}
+    user = utils.execute_query(queries.USER_QUERY_BY_ID, HOST, DB_NAME, USERNAME, PASSWORD, params=(user_id,))
+    if not user:
+        return {"exists": False}
+    return get_user_tasks_suggestions(user_id)
 
 
 def upload_help_suggestion(user_id, suggestions):
