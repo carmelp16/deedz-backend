@@ -14,5 +14,5 @@ def hello_world():
 # result: 0.38
     b = semantic_sim.calc_cosine_sim("Cooking", "I need help with walking the dog")
 
-    return a + ', ' + b
+    return str(a) + ', ' + str(b)
 # result: 0.06
