@@ -1,5 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS
+import requests as req
 
 app = Flask(__name__)
 CORS(app)
@@ -19,5 +20,6 @@ def register():
 def login():
     username = request.args.get('username')
     password = request.args.get('password')
-    #
-    return username
+    if len(password) != 8:
+        return {"exists":False}
+    return req.login(username)
