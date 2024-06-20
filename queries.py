@@ -65,8 +65,8 @@ RETURNING id;
 """
 
 INSERT_USER = """
-INSERT INTO "users" ("username", "email", "neighborhood_id", "phone_number", "rewards") VALUES
-(%s, %s, %s, %s, 0)
+INSERT INTO "users" ("username", "neighborhood_id", "phone_number", "rewards") VALUES
+(%s, %s, %s, 0)
 RETURNING id;
 """
 

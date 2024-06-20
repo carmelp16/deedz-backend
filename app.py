@@ -13,13 +13,11 @@ def hello_world():
 @app.route('/register', methods=['POST'])
 def register():
     username = request.form.get('username')
-    email = request.form.get('email')
     number = request.form.get('phone_number')
     location = request.form.get('location')
     suggestion = request.form.get('suggestion')
     photo = request.form.get('photo')
-    print(username,email,number,location,suggestion,photo)
-    return req.register(username, email, number, location, suggestion, photo)
+    return req.register(username, number, location, suggestion, photo)
 
 @app.route('/login', methods=['GET'])
 def login():

@@ -65,7 +65,7 @@ def login(username):
         return res
 
 
-def register(username, email, phone_number, location, suggestions, photo=None):
+def register(username, phone_number, location, suggestions, photo=None):
 
     # check if user is in db
     user = utils.execute_query(queries.USER_QUERY_BY_NAME, HOST, DB_NAME, USERNAME, PASSWORD, params=(username, ))
@@ -75,7 +75,7 @@ def register(username, email, phone_number, location, suggestions, photo=None):
     else:
         # insert user
         new_user_id = utils.execute_query(queries.INSERT_USER, HOST, DB_NAME, USERNAME, PASSWORD,
-                                          params=(username, email, location, phone_number, ))
+                                          params=(username, location, phone_number, ))
         if not new_user_id:
             return {"inserted": False}
         
