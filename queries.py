@@ -69,8 +69,8 @@ RETURNING id;
 """
 
 INSERT_SUGGESTION = """
-INSERT INTO "help_suggestions" ("user_id", "help_sentance") VALUES
-(%s, %s);
+INSERT INTO "help_suggestions" ("user_id", "help_sentence") VALUES
+(%s, %s)
 RETURNING id;
 """
 
