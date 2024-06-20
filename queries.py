@@ -1,12 +1,14 @@
 USER_QUERY = """
 SELECT id, username, neighborhood_id
 FROM users
-WHERE id = %s;"""
+WHERE username = %s;"""
 
 TASKS_BY_HELPEE = """
 SELECT *
 FROM tasks
-WHERE helpee_id = %s; """
+WHERE helpee_id = %s
+JOIN users
+ON (users.id == tasks.executing_helper_id); """
 
 
 SUGGESTIONS_BY_HELPER = """
