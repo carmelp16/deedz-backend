@@ -102,9 +102,12 @@ def upload_help_suggestion(user_id, suggestions):
 
 def update_task_status(task_id, status, executing_user_id=None):
     # update task id and status. set executing user id.
-    return {"updated": True, "task_id": task_id}
+    update = utils.execute_query(queries.UPDATE_TASK_STATUS, HOST, DB_NAME, USERNAME, PASSWORD, params=(status, executing_user_id, task_id))
+    if update:
+        return {"updated": True, "task_id": task_id}
+    return {"updated": False, "task_id": task_id}
 
 
 if __name__ == "__main__":
-    res = login('sarah17')
+    res = update_task_status(1, 'done', 3)
     print(res)
