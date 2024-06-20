@@ -14,6 +14,13 @@ SELECT id, help_sentence
 FROM help_suggestions
 WHERE user_id = %s; """
 
+UPDATE_TASK_STATUS = """
+UPDATE tasks
+SET status = %s,
+    executing_helper_id = %s,
+WHERE helpee_id = %s;
+"""
+
 INSERT_USER = """
 INSERT INTO "users" ("username", "email", "neighborhood_id", "phone_number", "rewards") VALUES
 (%s, %s, %s, %s, 0)
