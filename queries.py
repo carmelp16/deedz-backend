@@ -1,26 +1,53 @@
-USER_QUERY = """
+USER_QUERY_BY_ID = """
+SELECT id, username, neighborhood_id
+FROM users
+WHERE id = %s;"""
+
+
+USER_QUERY_BY_NAME = """
 SELECT id, username, neighborhood_id
 FROM users
 WHERE username = %s;"""
 
-TASKS_BY_HELPEE = """
-SELECT *
-FROM tasks
-WHERE helpee_id = %s
-JOIN users
-ON (users.id == tasks.executing_helper_id); """
 
+TASKS_BY_HELPEE = """
+with data as (SELECT users.id as user_id,
+users.username,
+users.neighborhood_id,
+tasks.id as task_id,
+tasks.task_time,
+tasks.created_at as task_creation,
+tasks.task_details,
+tasks.status,
+tasks.executing_helper_id
+FROM users
+JOIN tasks
+ON users.id = tasks.helpee_id
+WHERE users.id = %s
+)
+SELECT data.*, users.username as helper_username
+FROM data
+LEFT JOIN users
+ON data.executing_helper_id = users.id;
+"""
 
 SUGGESTIONS_BY_HELPER = """
-SELECT id, help_sentence
-FROM help_suggestions
-WHERE user_id = %s; """
+SELECT users.id as user_id,
+users.username,
+users.neighborhood_id,
+help_suggestions.id as suggestion_id,
+help_sentence
+FROM users
+JOIN help_suggestions
+ON users.id = help_suggestions.user_id
+WHERE users.id = %s;
+"""
 
 UPDATE_TASK_STATUS = """
 UPDATE tasks
 SET status = %s,
     executing_helper_id = %s,
-WHERE helpee_id = %s;
+WHERE helpee_id;
 """
 
 INSERT_USER = """
