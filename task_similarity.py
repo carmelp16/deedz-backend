@@ -1,4 +1,5 @@
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import SentenceTransformer, util, Tensor
+from typing import List
 MODEL_STRING = 'all-MiniLM-L6-v2'
 
 
@@ -6,12 +7,15 @@ class SemanticSim(object):
     def __init__(self):
         self.model = SentenceTransformer(MODEL_STRING)
 
+    def create_emmbedings(self, sentences: List[str]) -> List[Tensor]:
+        return self.model.encode(sentences)
+
     def calc_cosine_sim(self, s1, s2):
         """
         Calculate the embedding cosine similarity of two strings.
         """
         # TODO: cache?
-        embs = self.model.encode([s1, s2])
+        embs = self.create_emmbedings([s1, s2])
         return util.cos_sim(embs[0], embs[1])[0].item()
 
     def calc_cosine_sim_with_lists(self, list1, list2):
@@ -20,8 +24,8 @@ class SemanticSim(object):
         :param list2: another list of strings (of size m)
         :return: an n*m matrix of similarities between items of list1 and items of list2
         """
-        embs1 = self.model.encode(list1)
-        embs2 = self.model.encode(list2)
+        embs1 = self.create_emmbedings(list1)
+        embs2 = self.create_emmbedings(list2)
         return util.cos_sim(embs1, embs2)
 
 

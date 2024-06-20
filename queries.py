@@ -9,6 +9,17 @@ SELECT id, username, neighborhood_id
 FROM users
 WHERE username = %s;"""
 
+ALL_TASKS = """
+SELECT id, task_details
+FROM tasks
+WHERE status != 'done'
+"""
+
+ALL_SUGGESTIONS = """
+SELECT *
+FROM help_suggestions
+"""
+
 
 TASKS_BY_HELPEE = """
 with data as (SELECT users.id as user_id,
