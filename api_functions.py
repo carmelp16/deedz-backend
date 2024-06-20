@@ -4,6 +4,8 @@ import queries
 from datetime import datetime
 from task_similarity import SemanticSim
 from typing import List
+import requests
+import base64
 
 HOST = "dpg-cpa811tds78s73ct2q20-a.frankfurt-postgres.render.com"
 USERNAME = "uza"
@@ -16,6 +18,11 @@ TIME_DICT = {
     'week': 168
 }
 
+def generate_face_pic():
+    url = "https://thispersondoesnotexist.com/"
+    response = requests.get(url)
+
+    return base64.b64encode(response.content).decode('utf-8')\
 
 def login(username):
     # send username to db
@@ -138,8 +145,3 @@ def update_task_status(task_id, status, executing_user_id=None):
     if update:
         return {"updated": True, "task_id": task_id}
     return {"updated": False, "task_id": task_id}
-
-
-# if __name__ == "__main__":
-#     res = update_task_status(1, 'done', 3)
-#     print(res)
