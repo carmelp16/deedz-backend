@@ -8,29 +8,36 @@ USERNAME = "uza"
 PASSWORD = "rF2Tj4BOHkn9JDJRgJpVWWhpn5MsUdUr"
 DB_NAME = "taub"
 
+TIME_DICT = {
+    'hours': 4,
+    'day': 24,
+    'week': 168
+}
+
 
 def login(username):
     # send username to db
-    user = utils.execute_query(queries.USER_QUERY, HOST, DB_NAME, USERNAME, PASSWORD, params=username)[0]
+    user = utils.execute_query(queries.USER_QUERY_BY_NAME, HOST, DB_NAME, USERNAME, PASSWORD, params=(username, ))
     if not user:
         return {"exists": False}
     else:
+        user = user[0]
         user_id = user["id"]
-        tasks = utils.execute_query(queries.TASKS_BY_HELPEE, HOST, DB_NAME, USERNAME, PASSWORD, params=user_id)
+        tasks = utils.execute_query(queries.TASKS_BY_HELPEE, HOST, DB_NAME, USERNAME, PASSWORD, params=(user_id, ))
         suggestions = utils.execute_query(queries.SUGGESTIONS_BY_HELPER, HOST, DB_NAME, USERNAME, PASSWORD,
-                                          params=user_id)
+                                          params=(user_id, ))
 
         requests = []
         for task in tasks:
             request = {"task_details": task["task_details"]}
 
-            given_time = datetime.strptime(task["created_at"], '%Y-%m-%d %H:%M:%S')
+            given_time = task["task_creation"]
             time_difference = datetime.now() - given_time
             difference_in_hours = time_difference.total_seconds() / 3600
-            request["time_remaining"] = task["task_time"] - difference_in_hours
+            request["time_remaining"] = TIME_DICT[task["task_time"]] - difference_in_hours
 
             request["status"] = task["status"]
-            request["executing_username"] = task["executing_helper_id"]
+            request["executing_username"] = task["helper_username"]
             requests.append(request)
 
         suggestions_list = [{"task_details": sug["help_sentence"]} for sug in suggestions]
@@ -93,3 +100,6 @@ def update_task_status(task_id, status, executing_user_id=None):
     return {"updated": True, "task_id": task_id}
 
 
+if __name__ == "__main__":
+    res = login('sarah17')
+    print(res)
