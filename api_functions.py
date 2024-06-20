@@ -7,6 +7,7 @@ from typing import List, Dict
 import requests
 import base64
 from address import Address
+from operator import itemgetter
 
 HOST = "dpg-cpa811tds78s73ct2q20-a.frankfurt-postgres.render.com"
 USERNAME = "uza"
@@ -97,12 +98,13 @@ def register(username, phone_number, street, number, city, suggestions, photo=No
         
 
 
-def compare_user_to_tasks(user_id: str, tasks: List[Dict[str, str]], suggestions: List[Dict[str,str]]):
+def compare_user_to_tasks(tasks: List[Dict[str, str]], suggestions: List[Dict[str,str]]):
     # query all active tasks
-    task_vectors = [task['embedding'] for task in tasks]
+    print("comparing users to tasks")
+    task_vectors = [task['embedding'].split(',') for task in tasks]
 
     # query user vectors
-    user_vectors = [sug['embedding'] for sug in suggestions]
+    user_vectors = [sug['embedding'].split(',') for sug in suggestions]
 
     # compare to task
     semantic = SemanticSim()
@@ -111,19 +113,21 @@ def compare_user_to_tasks(user_id: str, tasks: List[Dict[str, str]], suggestions
     scores = [max(row) for row in res]
 
     for i, task in enumerate(tasks):
-        task['match_score'] = scores[i]
+        task['match_score'] = float(scores[i])
+    newtasks = sorted(tasks, key=itemgetter('match_score'), reverse=True)
 
-    return tasks
+    return newtasks
 
 
 def upload_task(user_id, task_description, category=None, time_to_execute=None):
     # calculate vector
     semantic = SemanticSim()
     vec = semantic.create_emmbedings([task_description])[0]
-
+    vec_list = ','.join([str(num) for num in vec.tolist()])
+    user = utils.execute_query(queries.USER_QUERY_BY_ID, HOST, DB_NAME, USERNAME, PASSWORD, params=(user_id,))
     # insert to db
     task = utils.execute_query(queries.INSERT_TASK, HOST, DB_NAME, USERNAME, PASSWORD,
-                                params=(user_id, category, 0, task_description, time_to_execute, vec))
+                                params=(user_id, category, user[0]['neighborhood_id'], task_description, time_to_execute, vec_list))
     
     # return
     if not task:
@@ -132,21 +136,26 @@ def upload_task(user_id, task_description, category=None, time_to_execute=None):
 
 
 
-def get_matches(location: int, suggestion_ids: List[int]=None, user_id: int=None): # TODO: 
+def get_matches(location, suggestion_ids: List[int]=None, user_id: int=None): # TODO:
     tasks = utils.execute_query(queries.ACTIVE_TASKS_BY_LOCATION, HOST, DB_NAME, USERNAME, PASSWORD, params=(location, ))
-    
+    print("got {0} tasks".format(len(tasks)))
+    # options are:
+    #   1. there is only user_id
+    #   2. there is user_id AND suggestion list
     if suggestion_ids or user_id:
+        print("user id is {0}".format(user_id))
         suggestions = utils.execute_query(queries.SUGGESTIONS_BY_HELPER, HOST, DB_NAME, USERNAME, PASSWORD, params=(user_id, ))
         if suggestion_ids:
             suggestions = [sug for sug in suggestions if sug['id'] in suggestion_ids]
-        tasks = compare_user_to_tasks(user_id, tasks, suggestions)
+        tasks = compare_user_to_tasks(tasks, suggestions)
+
+    return tasks
+
 
 def get_matches_lie():  # TODO:
-    tasks = []
-
-    return {'matched_tasks':tasks}
-
-
+    tasks = [{"id": 1, "helpee_id": 2, "category": "delivery", "neighborhood_id": 71, "task_details": "לעזור לסחוב ארון יד שניה",
+              "task_time": "day", "status": "pending", "executing_helper_username": "me"}]
+    return tasks
 
 
 def get_user_by_id(user_id):
@@ -160,10 +169,13 @@ def get_user_by_id(user_id):
 def upload_help_suggestion(user_id, suggestions: List[str]):
     semantic = SemanticSim()
     embeddings = semantic.create_emmbedings(suggestions)
+    embeddings_strs = []
+    for emb in embeddings:
+        embeddings_strs.append(','.join([str(num) for num in emb.tolist()]))
 
     suggestions_to_insert = []
     for i, _ in enumerate(suggestions):
-        suggestions_to_insert.append((user_id, suggestions[i], embeddings[i]))
+        suggestions_to_insert.append((user_id, suggestions[i], embeddings_strs[i]))
 
     utils.execute_query(queries.INSERT_SUGGESTION, HOST, DB_NAME, USERNAME, PASSWORD,
                                     params=suggestions_to_insert, execute_many=True)
@@ -180,4 +192,4 @@ def update_task_status(task_id, status, executing_user_id=None):
 
 
 if __name__ == "__main__":
-    register("Omer6", 123, "אינטרנציונל", 60, "חיפה", ["can do deliveries"])
+    upload_task(5, "buy me eggs")

@@ -13,7 +13,7 @@ ACTIVE_TASKS_BY_LOCATION = """
 SELECT *
 FROM tasks
 WHERE status != 'done'
-AND location = %s
+AND neighborhood_id = %s
 """
 
 ALL_SUGGESTIONS = """

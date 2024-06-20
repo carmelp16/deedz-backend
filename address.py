@@ -40,7 +40,6 @@ class Address:
             raise ValueError('Address geocoding failed')
 
     def _point_to_area_id(self) -> int:
-        print(os.getcwd())
         with open(DATA_FILENAME, 'rb') as f:
             gdf = pickle.load(f)
 

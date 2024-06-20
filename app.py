@@ -36,9 +36,14 @@ def upload():
     time = request.form.get('hours_left')
     return req.upload_task(user_id, task_text, time_to_execute=time)
 
+#@app.route('/get_matches', methods=['POST'])
+#def match():
+ #   return req.get_matches_lie()
+
 @app.route('/get_matches', methods=['POST'])
 def match():
-    return req.get_matches_lie()
+    print(request.form.get('location'))
+    return req.get_matches(request.form.get('location'), user_id=request.form.get('user_id'))
 
 @app.route('/get_user_by_id', methods=['GET'])
 def get_by_id():
