@@ -38,11 +38,7 @@ def upload():
 
 @app.route('/get_matches', methods=['POST'])
 def match():
-    return req.get_matches(user_id=request.form.get('userId'), 
-                location=request.form.get('location'), 
-                suggestions=request.form.get('suggestions'), 
-                task_time=request.form.get('task_time'), 
-                status=request.form.get('status'))
+    return req.get_matches_lie()
 
 @app.route('/get_user_by_id', methods=['GET'])
 def get_by_id():

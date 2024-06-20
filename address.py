@@ -2,6 +2,7 @@ from typing import Dict, Any
 from geopy.geocoders import Nominatim, Photon
 from shapely import Point
 import pickle
+import os
 
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
 ISRAEL = 'ישראל'
@@ -39,6 +40,7 @@ class Address:
             raise ValueError('Address geocoding failed')
 
     def _point_to_area_id(self) -> int:
+        print(os.getcwd())
         with open(DATA_FILENAME, 'rb') as f:
             gdf = pickle.load(f)
 

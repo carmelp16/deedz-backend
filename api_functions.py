@@ -82,12 +82,11 @@ def register(username, phone_number, street, number, city, suggestions, photo=No
     new_user_id = new_user_id[0]['id']
 
     # insert photo
-    """
     if not photo:
         photo = generate_face_pic()
+        photo = "myphoto"
     utils.execute_query(queries.INSERT_PHOTO, HOST, DB_NAME, USERNAME, PASSWORD,
                         params=(new_user_id, photo))
-    """
 
 
     # insert suggestion vectors
@@ -140,7 +139,10 @@ def get_matches(location: int, suggestion_ids: List[int]=None, user_id: int=None
         suggestions = utils.execute_query(queries.SUGGESTIONS_BY_HELPER, HOST, DB_NAME, USERNAME, PASSWORD, params=(user_id, ))
         if suggestion_ids:
             suggestions = [sug for sug in suggestions if sug['id'] in suggestion_ids]
-        tasks = compare_user_to_tasks(user_id, tasks)
+        tasks = compare_user_to_tasks(user_id, tasks, suggestions)
+
+def get_matches_lie():  # TODO:
+    tasks = []
 
     return {'matched_tasks':tasks}
 
@@ -178,4 +180,4 @@ def update_task_status(task_id, status, executing_user_id=None):
 
 
 if __name__ == "__main__":
-    register("Omer4", "omer@gmail.com", 123, 35, ["can do deliveries"])
+    register("Omer6", 123, "אינטרנציונל", 60, "חיפה", ["can do deliveries"])

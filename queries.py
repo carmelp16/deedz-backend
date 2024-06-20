@@ -88,5 +88,6 @@ INSERT INTO "matches" ("task_id", "suggestion_id", "match_score") VALUES
 
 INSERT_PHOTO = """
 INSERT INTO "photos" ("user_id", "photo") VALUES
-(%s, %s);
+(%s, %s)
+RETURNING id;
 """
