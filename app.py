@@ -12,9 +12,12 @@ def hello_world():
 
 @app.route('/register', methods=['POST'])
 def register():
-    username = request.args.get('username')
-
-    return 'Hello, World!'
+    username = request.form.get('username')
+    number = request.form.get('phone_number')
+    location = request.form.get('location')
+    suggestion = request.form.get('suggestion')
+    photo = request.form.get('photo')
+    return req.register(username, number, location, suggestion, photo)
 
 @app.route('/login', methods=['GET'])
 def login():
@@ -23,3 +26,10 @@ def login():
     if len(password) != 8:
         return {"exists":False}
     return req.login(username)
+
+@app.route('/upload_task', methods=['POST'])
+def upload():
+    user_id = request.form.get('userId')
+    task_text = request.form.get('task')
+    time = request.form.get('hours_left')
+    return req.upload_task(user_id, task_text, time_to_execute=time)
