@@ -46,7 +46,7 @@ def get_user_tasks_suggestions(user_id):
     suggestions_list = [{"task_details": sug["help_sentence"]} for sug in suggestions]
 
     return {"exists": True, "user id": user_id, "requests":
-        requests, "suggestions": suggestions_list, "location": user["neighborhood_id"],
+        requests, "suggestions": suggestions_list,
             "photo": "base64string"}
 
 
@@ -58,11 +58,14 @@ def login(username):
     else:
         user = user[0]
         user_id = user["id"]
-        return get_user_tasks_suggestions(user_id)
+        res =  get_user_tasks_suggestions(user_id)
+        res['exists'] = True
+        res['location'] = user["neighborhood_id"]
+
+        return res
 
 
 def register(username, phone_number, street, number, city, suggestions, photo=None):
-
     # check if user is in db
     user = utils.execute_query(queries.USER_QUERY_BY_NAME, HOST, DB_NAME, USERNAME, PASSWORD, params=(username, ))
     if user:
