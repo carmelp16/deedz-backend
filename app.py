@@ -33,3 +33,24 @@ def upload():
     task_text = request.form.get('task')
     time = request.form.get('hours_left')
     return req.upload_task(user_id, task_text, time_to_execute=time)
+
+@app.route('/get_matches', methods=['POST'])
+def match():
+    return req.get_matches(user_id=request.form.get('userId'), 
+                location=request.form.get('location'), 
+                suggestions=request.form.get('suggestions'), 
+                task_time=request.form.get('task_time'), 
+                status=request.form.get('status'))
+
+@app.route('/get_user_by_id', methods=['GET'])
+def get_by_id():
+    return req.get_user_by_id(request.args.get('userId'))
+
+@app.route('/upload_suggestion', methods=['POST'])
+def upload_suggestion():
+    return req.upload_help_suggestion(request.form.get('userId'), 
+                                      request.form.get('suggestion'))
+
+@app.route('/get_tasks', methods=['GET'])
+def get_tasks():
+    return req.get_matches(user_id=request.form.get('userId'))

@@ -12,8 +12,6 @@ def login(username):
     else:
         return {"exists":False}
 
-print(login("aaaa"))
-
 def register(username, phone_number, location, suggestions, photo=None):
     # check if user is in db
     var = randint(0, 1)
