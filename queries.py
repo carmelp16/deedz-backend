@@ -44,3 +44,8 @@ INSERT_MATCH = """
 INSERT INTO "matches" ("task_id", "suggestion_id", "match_score") VALUES
 (%s, %s, %s);
 """
+
+INSERT_PHOTO = """
+INSERT INTO "photos" ("user_id", "photo") VALUES
+(%s, %s, %s);
+"""

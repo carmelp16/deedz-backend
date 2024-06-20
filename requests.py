@@ -39,16 +39,22 @@ def login(username):
                 requests, "suggestions": suggestions_list, "location": user["neighborhood_id"],
                 "photo": "base64string"}
 
-def register(username, phone_number, location, suggestions, photo=None):
+
+def register(username, email, phone_number, location, suggestions, photo=None):
     # check if user is in db
-    var = randint(0, 1)
-    if var == 1:
-        # run language model on suggestions
-        # insert new user to db
-        return {"inserted": True, "user id": 1234,
-                "suggestions": [{"task_details": "I want to pet someone's dog"}], "location": 1, "photo": "base64string"}
-    else:
+    user = utils.execute_query(queries.USER_QUERY, HOST, DB_NAME, USERNAME, PASSWORD, params=username)
+    if user:
         return {"inserted": False}
+    else:
+        new_user_id = utils.execute_query(queries.INSERT_USER, HOST, DB_NAME, USERNAME, PASSWORD,
+                                          params=(username, email, location, phone_number))
+        utils.execute_query(queries.INSERT_PHOTO, HOST, DB_NAME, USERNAME, PASSWORD,
+                            params=(new_user_id, photo))
+        for suggestion in suggestions:
+            utils.execute_query(queries.INSERT_SUGGESTION, HOST, DB_NAME, USERNAME, PASSWORD,
+                                params=(new_user_id, suggestion))
+        return {"inserted": True, "user id": new_user_id, "requests": [],
+                "suggestions": suggestions, "location": location, "photo": photo}
 
 
 def upload_task(user_id, task_description, category=None, time_to_execute=None):
