@@ -49,18 +49,19 @@ def login(username):
 
 def register(username, email, phone_number, location, suggestions, photo=None):
     # check if user is in db
-    user = utils.execute_query(queries.USER_QUERY, HOST, DB_NAME, USERNAME, PASSWORD, params=username)
+    user = utils.execute_query(queries.USER_QUERY_BY_NAME, HOST, DB_NAME, USERNAME, PASSWORD, params=(username, ))
     if user:
         return {"inserted": False}
     else:
         new_user_id = utils.execute_query(queries.INSERT_USER, HOST, DB_NAME, USERNAME, PASSWORD,
                                           params=(username, email, location, phone_number))
-        utils.execute_query(queries.INSERT_PHOTO, HOST, DB_NAME, USERNAME, PASSWORD,
-                            params=(new_user_id, photo))
+        if photo:
+            utils.execute_query(queries.INSERT_PHOTO, HOST, DB_NAME, USERNAME, PASSWORD,
+                                params=(new_user_id[0]['id'], photo))
         for suggestion in suggestions:
             utils.execute_query(queries.INSERT_SUGGESTION, HOST, DB_NAME, USERNAME, PASSWORD,
-                                params=(new_user_id, suggestion))
-        return {"inserted": True, "user id": new_user_id, "requests": [],
+                                params=(new_user_id[0]['id'], suggestion))
+        return {"inserted": True, "user id": new_user_id[0]['id'], "requests": [],
                 "suggestions": suggestions, "location": location, "photo": photo}
 
 
@@ -109,5 +110,5 @@ def update_task_status(task_id, status, executing_user_id=None):
 
 
 if __name__ == "__main__":
-    res = update_task_status(1, 'done', 3)
+    res = register("yael2", "yael2@gmail.com", 12345678, 12, ["can cook"], photo=None)
     print(res)
