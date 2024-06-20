@@ -75,7 +75,7 @@ def register(username, email, phone_number, location, suggestions, photo=None):
 
             # insert photo
             if not photo:
-                photo = None     
+                photo = generate_face_pic()     
             utils.execute_query(queries.INSERT_PHOTO, HOST, DB_NAME, USERNAME, PASSWORD,
                                 params=(new_user_id, photo))
             
