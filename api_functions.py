@@ -63,7 +63,7 @@ def login(username):
 def register(username, email, phone_number, location, suggestions, photo=None):
 
     # check if user is in db
-    user = utils.execute_query(queries.USER_QUERY, HOST, DB_NAME, USERNAME, PASSWORD, params=(username, ))
+    user = utils.execute_query(queries.USER_QUERY_BY_NAME, HOST, DB_NAME, USERNAME, PASSWORD, params=(username, ))
     if user:
         return {"inserted": False}
     
@@ -85,15 +85,7 @@ def register(username, email, phone_number, location, suggestions, photo=None):
             
 
             # insert suggestion vectors
-            semantic = SemanticSim()
-            embeddings = semantic.create_emmbedings(suggestions)
-
-            suggestions_to_insert = []
-            for i, _ in enumerate(suggestions):
-                suggestions_to_insert.append((new_user_id, suggestions[i], embeddings[i]))
-
-            utils.execute_query(queries.INSERT_SUGGESTION, HOST, DB_NAME, USERNAME, PASSWORD,
-                                    params=suggestions_to_insert, execute_many=True)
+            upload_help_suggestion(new_user_id, suggestions)
             
             return {"inserted": True, "user id": new_user_id, "requests": [],
                     "suggestions": suggestions, "location": location, "photo": photo}
@@ -150,7 +142,6 @@ def get_matches(location: int, suggestion_ids: List[int]=None, user_id: int=None
 
 
 def get_user_by_id(user_id):
-    #TODO
     # fetch user from db. also fetch tasks and suggestions for this user.
     user = utils.execute_query(queries.USER_QUERY_BY_ID, HOST, DB_NAME, USERNAME, PASSWORD, params=(user_id,))
     if not user:
@@ -158,10 +149,17 @@ def get_user_by_id(user_id):
     return get_user_tasks_suggestions(user_id)
 
 
-def upload_help_suggestion(user_id, suggestions):
-    #TODO
-    # run language model on new suggestions
-    # insert new suggestions to db
+def upload_help_suggestion(user_id, suggestions: List[str]):
+    semantic = SemanticSim()
+    embeddings = semantic.create_emmbedings(suggestions)
+
+    suggestions_to_insert = []
+    for i, _ in enumerate(suggestions):
+        suggestions_to_insert.append((user_id, suggestions[i], embeddings[i]))
+
+    utils.execute_query(queries.INSERT_SUGGESTION, HOST, DB_NAME, USERNAME, PASSWORD,
+                                    params=suggestions_to_insert, execute_many=True)
+
     return {"inserted": True}
 
 
