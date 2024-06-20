@@ -1,4 +1,4 @@
-from sentence_transformers import SentenceTransformer, util, Tensor
+from sentence_transformers import SentenceTransformer, util
 from typing import List
 MODEL_STRING = 'all-MiniLM-L6-v2'
 
@@ -7,7 +7,7 @@ class SemanticSim(object):
     def __init__(self):
         self.model = SentenceTransformer(MODEL_STRING)
 
-    def create_emmbedings(self, sentences: List[str]) -> List[Tensor]:
+    def create_emmbedings(self, sentences: List[str]):
         return self.model.encode(sentences)
 
     def calc_cosine_sim(self, s1, s2):
