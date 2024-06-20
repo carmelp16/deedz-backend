@@ -46,8 +46,9 @@ WHERE users.id = %s;
 UPDATE_TASK_STATUS = """
 UPDATE tasks
 SET status = %s,
-    executing_helper_id = %s,
-WHERE helpee_id;
+    executing_helper_id = %s
+WHERE id = %s
+RETURNING id;
 """
 
 INSERT_USER = """
