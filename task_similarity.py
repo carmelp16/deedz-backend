@@ -33,15 +33,16 @@ class SemanticSim(object):
 
 ############################## Example Use ############################
 # semantic_sim = SemanticSim()
-# # For comparing a single pair of strings
-# semantic_sim.calc_cosine_sim("Cooking", "I need help with preparing soup"])
+# For comparing a single pair of strings
+
+# print(semantic_sim.calc_cosine_sim("Cooking", "I need help with preparing soup"))
 # result: 0.38
-# semantic_sim.calc_cosine_sim("Cooking", "I need help with walking the dog")
+# print(semantic_sim.calc_cosine_sim("Cooking", "I need help with walking the dog"))
 # result: 0.06
 
-# # For comparing two lists of strings
+# For comparing two lists of strings
 # list1 = ["I love cooking", "I am good with dogs"]
 # list2 = ["I need help with preparing soup", "I need someone to walk the dog in the evening"]
-# semantic_sim.calc_cosine_sim_with_lists(list1, list2)
+# print(semantic_sim.calc_cosine_sim_with_lists(list1, list2))
 # result: tensor([[0.2500, 0.1887],
 #                 [0.1066, 0.4382]])

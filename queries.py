@@ -65,8 +65,8 @@ RETURNING id;
 """
 
 INSERT_USER = """
-INSERT INTO "users" ("username", "email", "neighborhood_id", "phone_number", "rewards") VALUES
-(%s, %s, %s, %s, 0)
+INSERT INTO "users" ("username", "neighborhood_id", "phone_number", "rewards") VALUES
+(%s, %s, %s, 0)
 RETURNING id;
 """
 
@@ -88,5 +88,5 @@ INSERT INTO "matches" ("task_id", "suggestion_id", "match_score") VALUES
 
 INSERT_PHOTO = """
 INSERT INTO "photos" ("user_id", "photo") VALUES
-(%s, %s, %s);
+(%s, %s);
 """

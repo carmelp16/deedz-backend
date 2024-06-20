@@ -6,6 +6,7 @@ from task_similarity import SemanticSim
 from typing import List, Dict
 import requests
 import base64
+from address import Address
 
 HOST = "dpg-cpa811tds78s73ct2q20-a.frankfurt-postgres.render.com"
 USERNAME = "uza"
@@ -60,35 +61,35 @@ def login(username):
         return get_user_tasks_suggestions(user_id)
 
 
-def register(username, email, phone_number, location, suggestions, photo=None):
+def register(username, phone_number, street, number, city, suggestions, photo=None):
 
     # check if user is in db
     user = utils.execute_query(queries.USER_QUERY_BY_NAME, HOST, DB_NAME, USERNAME, PASSWORD, params=(username, ))
     if user:
         return {"inserted": False}
-    
-    else:
-        # insert user
-        new_user_id = utils.execute_query(queries.INSERT_USER, HOST, DB_NAME, USERNAME, PASSWORD,
-                                          params=(username, email, location, phone_number, ))
-        if not new_user_id:
-            return {"inserted": False}
-        
-        else:
-            new_user_id = new_user_id[0]['id']
 
-            # insert photo
-            if not photo:
-                photo = generate_face_pic()     
-            utils.execute_query(queries.INSERT_PHOTO, HOST, DB_NAME, USERNAME, PASSWORD,
-                                params=(new_user_id, photo))
-            
+    address_obj = Address(number, street, city)
+    location = address_obj.get_area_id()
+    # insert user
+    new_user_id = utils.execute_query(queries.INSERT_USER, HOST, DB_NAME, USERNAME, PASSWORD,
+                                      params=(username, location, phone_number, ))
+    if not new_user_id:
+        return {"inserted": False}
 
-            # insert suggestion vectors
-            upload_help_suggestion(new_user_id, suggestions)
-            
-            return {"inserted": True, "user id": new_user_id, "requests": [],
-                    "suggestions": suggestions, "location": location, "photo": photo}
+    new_user_id = new_user_id[0]['id']
+
+    # insert photo
+    if not photo:
+        photo = generate_face_pic()
+    utils.execute_query(queries.INSERT_PHOTO, HOST, DB_NAME, USERNAME, PASSWORD,
+                        params=(new_user_id, photo))
+
+
+    # insert suggestion vectors
+    upload_help_suggestion(new_user_id, suggestions)
+
+    return {"inserted": True, "user id": new_user_id, "requests": [],
+            "suggestions": suggestions, "location": location, "photo": photo}
         
 
 
@@ -169,3 +170,7 @@ def update_task_status(task_id, status, executing_user_id=None):
     if update:
         return {"updated": True, "task_id": task_id}
     return {"updated": False, "task_id": task_id}
+
+
+if __name__ == "__main__":
+    register("Omer4", "omer@gmail.com", 123, 35, ["can do deliveries"])

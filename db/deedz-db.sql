@@ -53,7 +53,7 @@ CREATE TABLE "matches" (
 
 CREATE TABLE "photos" (
   "user_id" int,
-  "photo" bytea
+  "photo" varchar
 );
 
 ALTER TABLE "tasks" ADD FOREIGN KEY ("helpee_id") REFERENCES "users" ("id");
