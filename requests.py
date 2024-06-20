@@ -9,7 +9,7 @@ PASSWORD = "rF2Tj4BOHkn9JDJRgJpVWWhpn5MsUdUr"
 DB_NAME = "taub"
 
 TIME_DICT = {
-    'hours': 4,
+    'immidiate': 4,
     'day': 24,
     'week': 168
 }
