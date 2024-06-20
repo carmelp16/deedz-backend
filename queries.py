@@ -9,8 +9,8 @@ SELECT id, username, neighborhood_id
 FROM users
 WHERE username = %s;"""
 
-ALL_TASKS = """
-SELECT id, task_details
+ACTIVE_TASKS = """
+SELECT *
 FROM tasks
 WHERE status != 'done'
 """
@@ -47,7 +47,8 @@ SELECT users.id as user_id,
 users.username,
 users.neighborhood_id,
 help_suggestions.id as suggestion_id,
-help_sentence
+help_sentence,
+embedding
 FROM users
 JOIN help_suggestions
 ON users.id = help_suggestions.user_id
@@ -69,14 +70,14 @@ RETURNING id;
 """
 
 INSERT_SUGGESTION = """
-INSERT INTO "help_suggestions" ("user_id", "help_sentence") VALUES
-(%s, %s)
+INSERT INTO "help_suggestions" ("user_id", "help_sentence", "embedding") VALUES
+(%s, %s, %s)
 RETURNING id;
 """
 
 INSERT_TASK = """
-INSERT INTO "tasks" ("helpee_id", "category", "neighborhood_id", "task_details", "task_time", "status", "executing_helper_id") VALUES
-(%s, %s, %s, %s, %s, 'pending', NULL)
+INSERT INTO "tasks" ("helpee_id", "category", "neighborhood_id", "task_details", "task_time", "status", "executing_helper_id", "embedding") VALUES
+(%s, %s, %s, %s, %s, 'pending', NULL, %s)
 RETURNING id; """
 
 INSERT_MATCH = """
