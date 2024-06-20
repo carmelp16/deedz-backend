@@ -3,7 +3,7 @@ import utils
 import queries
 from datetime import datetime
 from task_similarity import SemanticSim
-from typing import List
+from typing import List, Dict
 import requests
 import base64
 
@@ -22,7 +22,7 @@ def generate_face_pic():
     url = "https://thispersondoesnotexist.com/"
     response = requests.get(url)
 
-    return base64.b64encode(response.content).decode('utf-8')\
+    return base64.b64encode(response.content).decode('utf-8')
 
 def login(username):
     # send username to db
@@ -95,30 +95,12 @@ def register(username, email, phone_number, location, suggestions, photo=None):
                     "suggestions": suggestions, "location": location, "photo": photo}
         
 
-# def compare_task_to_suggestions(task_id):
-#     # query all suggestions
-#     suggestions = utils.execute_query(queries.ALL_SUGGESTIONS, HOST, DB_NAME, USERNAME, PASSWORD)
-#     sug_vectors = [sug['embedding'] for sug in suggestions]
 
-#     #query task embedding
-#     task = utils.execute_query(queries.TA, HOST, DB_NAME, USERNAME, PASSWORD)
-#     task_vector = [task[0]['embedding']]
-    
-#     # compare to task
-#     semantic = SemanticSim()
-#     res = semantic.calc_cosine_sim_with_lists(task_vector, sug_vectors)
-#     return res
-
-#     ### TODO: finish insertion back
-
-
-def compare_user_to_tasks(user_id: str):
+def compare_user_to_tasks(user_id: str, tasks: List[Dict[str, str]], suggestions: List[Dict[str,str]]):
     # query all active tasks
-    tasks = utils.execute_query(queries.ACTIVE_TASKS, HOST, DB_NAME, USERNAME, PASSWORD)
     task_vectors = [task['embedding'] for task in tasks]
 
     # query user vectors
-    suggestions = utils.execute_query(queries.SUGGESTIONS_BY_HELPER, HOST, DB_NAME, USERNAME, PASSWORD, params=(user_id, ))
     user_vectors = [sug['embedding'] for sug in suggestions]
 
     # compare to task
@@ -128,20 +110,19 @@ def compare_user_to_tasks(user_id: str):
     scores = [max(row) for row in res]
 
     for i, task in enumerate(tasks):
-        tasks['match_score'] = scores[i]
+        task['match_score'] = scores[i]
 
     return tasks
 
 
 def upload_task(user_id, task_description, category=None, time_to_execute=None):
-
     # calculate vector
     semantic = SemanticSim()
     vec = semantic.create_emmbedings([task_description])[0]
 
     # insert to db
     task = utils.execute_query(queries.INSERT_TASK, HOST, DB_NAME, USERNAME, PASSWORD,
-                                params=(user_id, category, 0, task_description, time_to_execute, vec ))
+                                params=(user_id, category, 0, task_description, time_to_execute, vec))
     
     # return
     if not task:
@@ -150,17 +131,22 @@ def upload_task(user_id, task_description, category=None, time_to_execute=None):
 
 
 
-def get_matches(user_id=None, location=None, suggestions=None, task_time=None, status=None):
-    if suggestions:
-        # run language model on new suggestions
-        pass
-    # query tasks table according to the values provided
-    return {"matched_tasks": [{"task_details": "I need someone to pet my dog", "requesting_user": 1234,
-                               "time_remaining": 5, "status": 2, "executing_username":"amit"},
-                 {"task_details": "Connect to my db bls", "requesting_user": 1234, "time_remaining": 5, "status": 1}]}
+def get_matches(location: int, suggestion_ids: List[int]=None, user_id: int=None): # TODO: 
+    tasks = utils.execute_query(queries.ACTIVE_TASKS_BY_LOCATION, HOST, DB_NAME, USERNAME, PASSWORD, params=(location, ))
+    
+    if suggestion_ids or user_id:
+        suggestions = utils.execute_query(queries.SUGGESTIONS_BY_HELPER, HOST, DB_NAME, USERNAME, PASSWORD, params=(user_id, ))
+        if suggestion_ids:
+            suggestions = [sug for sug in suggestions if sug['id'] in suggestion_ids]
+        tasks = compare_user_to_tasks(user_id, tasks)
+
+    return {'matched_tasks':tasks}
+
+
 
 
 def get_user_by_id(user_id):
+    #TODO
     # fetch user from db. also fetch tasks and suggestions for this user.
     return {"exists": True, "requests":
         [{"task_details": "I need someone to pet my dog", "time_remaining": 5, "status": 2,
@@ -170,6 +156,7 @@ def get_user_by_id(user_id):
 
 
 def upload_help_suggestion(user_id, suggestions):
+    #TODO
     # run language model on new suggestions
     # insert new suggestions to db
     return {"inserted": True}

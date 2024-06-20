@@ -9,10 +9,11 @@ SELECT id, username, neighborhood_id
 FROM users
 WHERE username = %s;"""
 
-ACTIVE_TASKS = """
+ACTIVE_TASKS_BY_LOCATION = """
 SELECT *
 FROM tasks
 WHERE status != 'done'
+AND location = %s
 """
 
 ALL_SUGGESTIONS = """
